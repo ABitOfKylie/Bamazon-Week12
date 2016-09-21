@@ -17,7 +17,7 @@ var connection = mysql.createConnection({
 })
 
 var newQty = 0;
-// stockQuantity-howMany
+// stockQuantity-howMany see line 97
 var howMany=0;
 // user chooses.
 
@@ -26,7 +26,7 @@ var itemChoice = 0;
 var choiceID = 0;
 var totalCost = howMany * itemPrice;
 //remember to reset values each new start
-prompt.start();
+// prompt.start();
 
 connection.connect (function(err) {
 	if (err) throw err;
@@ -41,48 +41,54 @@ connection.query("SELECT * FROM products", function(err,res){
 	for (var i=0; i<res.length; i++){
 		console.log(res [i].ItemID + " | " + res[i].ProductName + " | " + "$" + res[i].Price);
 		console.log("*******************************************************");
-	// initPrompt();
 	}
 })
+		initPrompt();
 };
+
+		// initPrompt();
+
 // .then -- initprompt
 
 prompt.message = colors.bold.blue("Question!");
-prompt.delimiter = colors.bgGreen("");
+prompt.delimiter = colors.green("");
 
 
 function initPrompt(){
 prompt.get({
     properties: {
         item: {
-            description: colors.bgGreen("Please enter the ItemID of the product you wish to buy."),
+            description: colors.blue("Please enter the ItemID of the product you wish to buy."),
             // pattern: /^[a-zA-Z]/,
              message: colors.red("Please enter a valid item number.")
         },
         quantity: {
-            description: colors.bgGreen("How many would you like to buy?"),
+            description: colors.blue("How many would you like to buy?"),
             // pattern: /^[a-zA-Z]/,
              message: colors.red("Please enter a valid number. Max. 10 products per customer.")
         }
     }
 }, function(err, res) {
-		    itemChoice = res.item();
-		    howMany = res.quantity();
-
-	    	checkQty();
+			console.log(res);
+		    itemChoice = res.item;
+		    howMany = res.quantity;
+		    console.log(howMany);
+		    console.log(itemChoice);
+	    	checkQty(itemChoice , howMany);
 	    // pull values itemID, product name, price, (var howMany, itemPrice, itemChoice,)
-});
-};
+})
+}
 
 
 // 
 function checkQty(itemChoice , howMany){
-connection.query("SELECT StockQuantity, Price, ProductName FROM products WHERE ItemID = itemChoice", function(err,result){
-	
-		console.log(colors.bold.green("You chose " + howMany +"  " + result.ProductName + "(s)"));
+connection.query("SELECT StockQuantity, Price, ProductName FROM products WHERE ? ", {ItemID:itemChoice}, function(err,result){
+		var product = result[0].ProductName;
+		console.log(colors.bold.green("You chose " + howMany + "  " + product + "(s)"));
 
 		var currentQty = result.StockQuantity;
-		itemPrice = result.Price; 
+		itemPrice = result[0].Price; 
+		totalCost = howMany *itemPrice;
 
 	if (currentQty<=0 || currentQty < howMany ){
 		console.log(colors.bold.red("Insufficient Quantity"));
@@ -92,7 +98,7 @@ connection.query("SELECT StockQuantity, Price, ProductName FROM products WHERE I
 		initPrompt();
 	}
 	else{
-		console.log (colors.bold.blue("Yes, we have "+ howMany + "in stock."));
+		console.log (colors.bold.blue("Yes, we have "+ howMany + " in stock."));
 		orderProduct();
 		newQty = currentQty - howMany;
 
@@ -101,11 +107,11 @@ connection.query("SELECT StockQuantity, Price, ProductName FROM products WHERE I
 };
 
 function orderProduct(){
-onnection.query("UPDATE products SET StockQuantity = newQty WHERE ItemID = itemChoice", function(err,res){
+connection.query("UPDATE products SET StockQuantity = newQty WHERE ? ", {ItemID:itemChoice}, function(err,res){
 		console.log(colors.bold.blue("The total cost of your order is  $ " + totalCost));
-		console.log(colors.bold.rainbow("Your product(s) will be shipped to you shortly"));
-		display();
-		initPrompt(); 
+		console.log(colors.bold.green("Your product(s) will be shipped to you shortly"));
+		// display();
+		// initPrompt(); 
 })
 };
 
