@@ -59,12 +59,12 @@ function initPrompt() {
         properties: {
             item: {
                 description: colors.blue("Please enter the ItemID of the product you wish to buy."),
-                // pattern: /^[0-9]/,
+                // if isNAN (item) ==false, return true, else 
                 message: colors.red("Please enter a valid item number.")
             },
             quantity: {
                 description: colors.blue("How many would you like to buy?"),
-                // pattern: /^[a-zA-Z]/,
+                // if isNAN (item) ==false, return true, else 
                 message: colors.red("Please enter a valid number. Max. 10 products per customer.")
             }
         }
@@ -105,7 +105,7 @@ function checkQty(itemChoice, howMany) {
     });
 };
 
-function orderProduct() {
+function orderProduct(itemChoice) {
     connection.query("UPDATE products SET StockQuantity = newQty WHERE ? ", { ItemID: itemChoice }, function(err, res) {
         console.log(colors.bold.blue("The total cost of your order is  $ " + totalCost));
         console.log(colors.bold.green("Your product(s) will be shipped to you shortly"));
