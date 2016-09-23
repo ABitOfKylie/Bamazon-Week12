@@ -70,7 +70,7 @@ function initPrompt() {
         }
     }, function(err, res) {
         console.log(res);
-        itemChoice = res.item;
+        itemChoice = res.item; 
         howMany = res.quantity;
         console.log(howMany);
         console.log(itemChoice);
