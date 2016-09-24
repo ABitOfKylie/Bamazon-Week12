@@ -19,16 +19,13 @@ var connection = mysql.createConnection({
 })
 
 var newQty = 0;
-// stockQuantity-howMany see line 97
 var howMany = 0;
 // user chooses.
 
-var itemPrice = 0;
+// var itemPrice = 0;
 var itemChoice = 0;
 var choiceID = 0;
-// var totalCost = howMany * itemPrice;
-//remember to reset values each new start
-// prompt.start();
+
 
 connection.connect(function(err) {
     if (err) throw err;
@@ -49,9 +46,6 @@ function display() {
     }).then
     	 initPrompt();
 };
-   
-// };
-
 
 // prompt.message = colors.bold.blue("Question!");
 // prompt.delimiter = colors.green("");
@@ -66,7 +60,7 @@ function initPrompt() {
                 message: colors.red("Please enter a valid item number.")
             },
             quantity: {
-                description: colors.bold.blue("How many would you like to buy?"),
+                description: colors.bold.blue("How many would you like to buy?\n"),
                 // if isNAN (item) ==false, return true, else 
                 message: colors.red("Please enter a valid number. Max. 10 products per customer.")
             }
@@ -88,17 +82,21 @@ function initPrompt() {
 function checkQty(itemChoice, howMany) {
     connection.query("SELECT StockQuantity, Price, ProductName FROM products WHERE ? ", { ItemID: itemChoice }, function(err, result) {
         var product = result[0].ProductName;
-        console.log(colors.bold.blue("You chose " + howMany + "  " + product + "(s)"));
+        var itemPrice = result[0].Price;
+
+        // console.log(colors.bold.blue("You chose " + howMany + "  " + product + "(s)" + " for $" +itemPrice + " each.\n"));
 
         var currentQty = result[0].StockQuantity;
-        console.log(colors.bold.green("There are currently  " + currentQty + " " + product + "(s) in stock"));
-        itemPrice = result[0].Price;
+        console.log(colors.bold.green("There are currently  " + currentQty + " " + product + "(s) in stock\n"));
+        
+        console.log(colors.bold.blue("You chose " + howMany + "  " + product + "(s)" + " for $" +itemPrice + " each.\n"));
+
         totalCost = howMany * itemPrice;
 
         if (currentQty <= 0 || currentQty < howMany) {
-            console.log(colors.bold.red("Insufficient Quantity"));
-            console.log(colors.bold.red("There are only " + currentQty + " available."));
-            console.log("Please choose a smaller quantity or another item");
+            console.log(colors.bold.red("Insufficient Quantity\n"));
+            console.log(colors.bold.red("There are only " + currentQty + " available.\n"));
+            console.log(colors.bold("Please choose a smaller quantity or another item"));
             // display();
             initPrompt();
         } else {
@@ -115,9 +113,9 @@ function orderProduct(itemChoice, newQty) {
         // console.log("The newQty variable from above function works " + newQty);
 
     connection.query("UPDATE products SET StockQuantity = newQty WHERE ? ", { ItemID: itemChoice}, function(err, res) {
-        console.log(colors.bold.blue("The total cost of your order is  $ " + totalCost));
-        console.log(colors.bold.green("Your product(s) will be shipped to you shortly"));
-        console.log(colors.bold.green("After you order is shipped, there will be " + newQty + " in stock"));
+        console.log(colors.bold.blue("The total cost of your order is  $ " + totalCost + "\n\n"));
+        console.log(colors.bold.green("Your product(s) will be shipped to you shortly\n\n"));
+        console.log(colors.bold.green("After you order is shipped, there will be " + newQty + " in stock\n"));
         moreStuff();
 })
 }
@@ -125,13 +123,13 @@ function orderProduct(itemChoice, newQty) {
 function moreStuff(){
 	inquirer.prompt([{
         type: "confirm",
-        message: "Would you like to purchase additional items? (Y/n)",
+        message: "Would you like to purchase additional items? (Y/n)\n",
         name: "moreStuffQ"
 	}]).then (function (yes){
 		if (yes.moreStuffQ) {
 			initPrompt();
         }else{
-         console.log(colors.bold.blue("Thank you for your business. We look forward to seeing you again!"));
+         console.log(colors.bold.blue("Thank you for your business. We look forward to seeing you again!\n"));
          console.log(colors.italic("Our current programmer does not yet know how to code a graceful exit. Please type control+c "));
         } 
     // })
