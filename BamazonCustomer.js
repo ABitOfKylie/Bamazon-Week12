@@ -42,9 +42,9 @@ function display() {
             console.log("\n" + res[i].ItemID + " | " + res[i].ProductName + " | " + "$" + res[i].Price);
             console.log("*******************************************************");
         }
-	    
+
     }).then
-    	 initPrompt();
+    initPrompt();
 };
 
 // prompt.message = colors.bold.blue("Question!");
@@ -67,14 +67,14 @@ function initPrompt() {
         }
     }, function(err, res) {
         // console.log(res);
-        itemChoice = res.item; 
+        itemChoice = res.item;
         howMany = res.quantity;
         // console.log(howMany);
         // console.log(itemChoice);
         checkQty(itemChoice, howMany);
         // pull values itemID, product name, price, (var howMany, itemPrice, itemChoice,)
-    	})
-	
+    })
+
 };
 
 
@@ -88,8 +88,8 @@ function checkQty(itemChoice, howMany) {
 
         var currentQty = result[0].StockQuantity;
         console.log(colors.bold.green("There are currently  " + currentQty + " " + product + "(s) in stock\n"));
-        
-        console.log(colors.bold.blue("You chose " + howMany + "  " + product + "(s)" + " for $" +itemPrice + " each.\n"));
+
+        console.log(colors.bold.blue("You chose " + howMany + "  " + product + "(s)" + " for $" + itemPrice + " each.\n"));
 
         totalCost = howMany * itemPrice;
 
@@ -110,30 +110,31 @@ function checkQty(itemChoice, howMany) {
 };
 
 function orderProduct(itemChoice, newQty) {
-        // console.log("The newQty variable from above function works " + newQty);
-
-    connection.query("UPDATE products SET StockQuantity = newQty WHERE ? ", { ItemID: itemChoice}, function(err, res) {
+    // console.log(newQty);
+    // console.log(itemChoice);
+    console.log(mysql.format("UPDATE products SET StockQuantity = ? WHERE ? ", [newQty, { ItemID: itemChoice }]));
+    connection.query("UPDATE products SET StockQuantity = ? WHERE ? ", [newQty, { ItemID: itemChoice }], function(err, res) {
         console.log(colors.bold.blue("The total cost of your order is  $ " + totalCost + "\n\n"));
         console.log(colors.bold.green("Your product(s) will be shipped to you shortly\n\n"));
         console.log(colors.bold.green("After you order is shipped, there will be " + newQty + " in stock\n"));
         moreStuff();
-})
+    })
 }
 
-function moreStuff(){
-	inquirer.prompt([{
+function moreStuff() {
+    inquirer.prompt([{
         type: "confirm",
         message: "Would you like to purchase additional items? (Y/n)\n",
         name: "moreStuffQ"
-	}]).then (function (yes){
-		if (yes.moreStuffQ) {
-			initPrompt();
-        }else{
-         console.log(colors.bold.blue("Thank you for your business. We look forward to seeing you again!\n"));
-         console.log(colors.italic("Our current programmer does not yet know how to code a graceful exit. Please type control+c "));
-        } 
-    // })
-});
+    }]).then(function(yes) {
+        if (yes.moreStuffQ) {
+            initPrompt();
+        } else {
+            console.log(colors.bold.blue("Thank you for your business. We look forward to seeing you again!\n"));
+            console.log(colors.italic("Our current programmer does not yet know how to code a graceful exit. Please type control+c "));
+        }
+        // })
+    });
 }
 
 
